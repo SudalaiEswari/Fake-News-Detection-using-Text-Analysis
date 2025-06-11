@@ -1,0 +1,46 @@
+# Fake News Detection Using Text Analysis
+
+# Step 1: Import required libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import PassiveAggressiveClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+# Step 2: Load the dataset
+# Ensure you have a file named "fake_or_real_news.csv" with 'text' and 'label' columns
+df = pd.read_csv("fake_or_real_news.csv")
+
+# Step 3: Display basic info
+print("Data Sample:")
+print(df.head())
+print("\nLabel counts:")
+print(df.label.value_counts())
+
+# Step 4: Prepare the data
+X = df['text']              # News content
+y = df['label']             # 'FAKE' or 'REAL'
+
+# Step 5: Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+# Step 6: Convert text data to TF-IDF feature vectors
+tfidf_vectorizer = TfidfVectorizer(stop_words='english', max_df=0.7)
+tfidf_train = tfidf_vectorizer.fit_transform(X_train)
+tfidf_test = tfidf_vectorizer.transform(X_test)
+
+# Step 7: Build and train the model
+model = PassiveAggressiveClassifier(max_iter=50)
+model.fit(tfidf_train, y_train)
+
+# Step 8: Make predictions
+y_pred = model.predict(tfidf_test)
+
+# Step 9: Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nModel Accuracy: {round(accuracy * 100, 2)}%")
+
+# Step 10: Show confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+print("\nConfusion Matrix:")
+print(cm)
